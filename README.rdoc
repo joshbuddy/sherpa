@@ -1,0 +1,40 @@
+= Sherpa
+
+Simple routing in Javascript.
+
+== Example
+
+  require('./lib/sherpa')
+  var sys = require("sys")
+
+  var sherpa = new Sherpa.Router();
+
+  sherpa.add('/test/:test2', {matches_with: {test2: /.*/}}).to('testing')
+
+  sys.debug(sys.inspect(sherpa.recognize('/test/testing.help')))
+
+Would output
+
+  {
+   "destination": "testing",
+   "params": {
+    "test2": "testing.help"
+   }
+  }
+
+And...
+
+  sherpa.add('/test2/:test2.:format', {matches_with: {format: /html|text/}}).to('testing').name('test')
+
+  sys.debug(sys.inspect(sherpa.recognize('/test')))
+  sys.debug(sys.inspect(sherpa.recognize('/test2/testing.html')))
+
+  sys.debug(sys.inspect(sherpa.generate('test', {test2: 'variable', format: 'html'})))
+  
+Would output
+
+  "/test2/variable.html"
+  
+== TODO
+
+* Add support for request methods.
