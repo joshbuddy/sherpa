@@ -53,7 +53,3 @@ And generating is easy too.
 Would output
 
   "/test2/variable.html"
-  
-== TODO
-
-* Add support for request methods. (almost done, just need regex)

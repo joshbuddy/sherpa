@@ -53,5 +53,16 @@ describe("Sherpa - recognize", function() {
     
   });
 
+  it("should recognize a route based on a request method regex", function() {
+    var router = new Sherpa.Router();
+    router.add('/test').to('any');
+    router.add('/test', {conditions:{method: 'DELETE'}}).to('delete');
+    router.add('/test', {conditions:{method: /GET|POST/}}).to('get-post');
+    assertEqual('get-post', router.recognize('/test', {method: 'GET'}).destination);
+    assertEqual('get-post', router.recognize('/test', {method: 'POST'}).destination);
+    assertEqual('delete', router.recognize('/test', {method: 'DELETE'}).destination);
+    assertEqual('any', router.recognize('/test', {method: 'PUT'}).destination);
+  });
+
   
 });
