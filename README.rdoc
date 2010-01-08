@@ -26,8 +26,25 @@ And...
 
   sherpa.add('/test2/:test2.:format', {matches_with: {format: /html|text/}}).to('testing').name('test')
 
-  sys.debug(sys.inspect(sherpa.recognize('/test')))
+  sys.debug(sys.inspect(sherpa.recognize('/test2/testing.json')))
+
+Would give you
+
+  undefined
+  
+But if you change the extension to one supported by matches_with,
+
   sys.debug(sys.inspect(sherpa.recognize('/test2/testing.html')))
+
+Would give you
+
+  {
+   "destination": "testing",
+   "params": {
+    "test2": "testing",
+    "format": "html"
+   }
+  }
 
   sys.debug(sys.inspect(sherpa.generate('test', {test2: 'variable', format: 'html'})))
   
