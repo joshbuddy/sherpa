@@ -46,6 +46,8 @@ Would give you
    }
   }
 
+And generating is easy too.
+
   sys.debug(sys.inspect(sherpa.generate('test', {test2: 'variable', format: 'html'})))
   
 Would output
