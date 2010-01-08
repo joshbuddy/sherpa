@@ -9,7 +9,7 @@ Simple routing in Javascript.
 
   var sherpa = new Sherpa.Router();
 
-  sherpa.add('/test/:test2', {matches_with: {test2: /.*/}}).to('testing')
+  sherpa.add('/test/:test2', {matchesWith: {test2: /.*/}}).to('testing')
 
   sys.debug(sys.inspect(sherpa.recognize('/test/testing.help')))
 
@@ -24,7 +24,7 @@ Would output
 
 And...
 
-  sherpa.add('/test2/:test2.:format', {matches_with: {format: /html|text/}}).to('testing').name('test')
+  sherpa.add('/test2/:test2.:format', {matchesWith: {format: /html|text/}}).to('testing').name('test')
 
   sys.debug(sys.inspect(sherpa.recognize('/test2/testing.json')))
 
@@ -32,7 +32,7 @@ Would give you
 
   undefined
   
-But if you change the extension to one supported by matches_with,
+But if you change the extension to one supported by matchesWith,
 
   sys.debug(sys.inspect(sherpa.recognize('/test2/testing.html')))
 
@@ -56,4 +56,4 @@ Would output
   
 == TODO
 
-* Add support for request methods.
+* Add support for request methods. (almost done, just need regex)

@@ -15,7 +15,7 @@ describe("Sherpa - generate", function() {
 
   it("should generate a route with a regex variable in it", function() {
     var router = new Sherpa.Router();
-    router.add('/:test', {matches_with: {test: /asd|qwe|\d+/}}).name('with_variable');
+    router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
     assertEqual(undefined, router.generate('with_variable', {test: 'variable'}))
     assertEqual(undefined, router.generate('with_variable', {test: '123qwe'}))
     assertEqual('/123', router.generate('with_variable', {test: '123'}))
@@ -25,7 +25,7 @@ describe("Sherpa - generate", function() {
 
   it("should generate extra params as a query string after", function() {
     var router = new Sherpa.Router();
-    router.add('/:test', {matches_with: {test: /asd|qwe|\d+/}}).name('with_variable');
+    router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
     assertEqual('/123?foo=bar', router.generate('with_variable', {test: '123', foo: 'bar'}))
   });
 
