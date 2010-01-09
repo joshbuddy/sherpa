@@ -59,7 +59,6 @@ Would return
 And...
 
   sherpa.add('/test2/:test2.:format', {matchesWith: {format: /html|text/}}).to('testing')
-
   sherpa.recognize('/test2/testing.json')
 
 Would return
