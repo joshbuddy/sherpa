@@ -9,11 +9,8 @@ Simple HTTP routing in Javascript.
 Here is an example of simple recognition run from Node.js.
 
   require('./lib/sherpa')
-
   var sherpa = new Sherpa.Router();
-
   sherpa.add('/test').to('testRoute')
-  
   sherpa.recognize('/test')
 
 Would return:
@@ -71,7 +68,7 @@ Would return
   
 But if you change the extension to one supported by the <tt>matchesWith</tt> specified,
 
-  sys.debug(sys.inspect(sherpa.recognize('/test2/testing.html')))
+  sherpa.recognize('/test2/testing.html')
 
 Would return
 
