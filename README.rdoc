@@ -1,42 +1,79 @@
 = Sherpa
 
-Simple routing in Javascript.
+Simple HTTP routing in Javascript.
 
 == Example
 
+=== Recognition
+
+Here is an example of simple recognition run from Node.js.
+
   require('./lib/sherpa')
-  var sys = require("sys")
 
   var sherpa = new Sherpa.Router();
 
-  sherpa.add('/test/:test2', {matchesWith: {test2: /.*/}}).to('testing')
+  sherpa.add('/test').to('testRoute')
+  
+  sherpa.recognize('/test')
 
-  sys.debug(sys.inspect(sherpa.recognize('/test/testing.help')))
-
-Would output
+Would return:
 
   {
-   "destination": "testing",
-   "params": {
-    "test2": "testing.help"
-   }
+    "destination": "testing",
+    "params": {},
+  }
+
+You can have a path with a variable in it by prepending a <tt>:</tt> to it. For example:
+
+  sherpa.add('/test/:variable').to('testing')
+  sherpa.recognize('/test/iloveyou')
+
+Would return
+
+  {
+    "destination": "testing",
+    "params": {
+      "variable": "iloveyou"
+    }
+  }
+
+Variables by default will not match beyond a slash (<tt>/</tt>) or a period (<tt>.</tt>).
+
+  sherpa.recognize('/test/iloveyou.html')
+
+Would return
+
+  undefined
+
+You can get around this by adding a <tt>matchesWith</tt> regex
+
+  sherpa.add('/test/:variable', {matchesWith: {variable: /.*/}}).to('testing')
+  sherpa.recognize('/test/iloveyou.html')
+
+Would return
+
+  {
+    "destination": "testing",
+    "params": {
+      "test2": "testing.help"
+    }
   }
 
 And...
 
-  sherpa.add('/test2/:test2.:format', {matchesWith: {format: /html|text/}}).to('testing').name('test')
+  sherpa.add('/test2/:test2.:format', {matchesWith: {format: /html|text/}}).to('testing')
 
-  sys.debug(sys.inspect(sherpa.recognize('/test2/testing.json')))
+  sherpa.recognize('/test2/testing.json')
 
-Would give you
+Would return
 
   undefined
   
-But if you change the extension to one supported by matchesWith,
+But if you change the extension to one supported by the <tt>matchesWith</tt> specified,
 
   sys.debug(sys.inspect(sherpa.recognize('/test2/testing.html')))
 
-Would give you
+Would return
 
   {
    "destination": "testing",
@@ -46,10 +83,43 @@ Would give you
    }
   }
 
-And generating is easy too.
+You can also specify other parts of the request to match on using <tt>conditions</tt>.
 
-  sys.debug(sys.inspect(sherpa.generate('test', {test2: 'variable', format: 'html'})))
+  sherpa.add('/test', {conditions: {method: 'GET'}}).to('testing')
+  sherpa.recognize('/test', {method: 'GET'})
   
-Would output
+  {
+    "destination": "testing",
+    "params": {}
+  }
+
+But
+  
+  sherpa.recognize('/test', {method: 'POST'})
+  
+Will just return
+  
+  undefined
+
+You can also use regex here, such as:
+
+  sherpa.add('/test', {conditions: {method: /GET|POST/}}).to('testing')
+
+=== Generation
+
+Generating is easy too.
+
+  sherpa.add('/test2/:test2.:format').name('test')
+  sherpa.generate('test', {test2: 'variable', format: 'html'})
+  
+Would return
 
   "/test2/variable.html"
+
+Any extra variables used as params would be appended as part of the query string.
+
+  sherpa.generate('test', {test2: 'variable', format: 'html', page: '1'})
+
+Would return
+
+  "/test2/variable.html?page=1"
