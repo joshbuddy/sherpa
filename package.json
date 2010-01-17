@@ -1,0 +1,8 @@
+{
+  name : "sherpa",
+  description : "Simple URI routing in Javascript",
+  author : "Joshua Hull <joshbuddy@gmail.com>",
+  version : "0.0.1",
+  main : "lib/sherpa"
+}
+  
