@@ -25,6 +25,17 @@ describe("Sherpa - recognize", function() {
     assertEqual('recognized', router.recognize('/asd').destination)
   });
   
+  it("should distinguish between identical routes where one has a matchesWith", function() {
+    var router = new Sherpa.Router();
+    router.add('/:test', {matchesWith: {test: /^(asd|qwe|\d+)$/}}).to('recognized-regex');
+    router.add('/:test').to('recognized-nonregex');
+    assertEqual('recognized-nonregex', router.recognize('/poipio').destination)
+    assertEqual('recognized-nonregex', router.recognize('/123asd').destination)
+    assertEqual('recognized-regex', router.recognize('/123').destination)
+    assertEqual('recognized-regex', router.recognize('/qwe').destination)
+    assertEqual('recognized-regex', router.recognize('/asd').destination)
+  });
+  
   it("should recognize a route based on a request method", function() {
     var router = new Sherpa.Router();
     router.add('/test').to('any');
