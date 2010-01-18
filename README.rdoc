@@ -135,7 +135,7 @@ To use this within Node.js, simply use the Node.js interface. Here is a simple e
     }},
     '/hello/:name': {to: function (request, response) {
       response.sendHeader(200, {"Content-Type": "text/plain"});
-      response.sendBody("Hello "+request.sherpa_response.params['name']+"\n");
+      response.sendBody("Hello "+request.sherpaResponse.params['name']+"\n");
       response.finish();
     }},
     'not found': {to: function (request, response) {
