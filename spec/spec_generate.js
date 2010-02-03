@@ -45,4 +45,16 @@ describe("Sherpa - generate", function() {
     assertEqual('/123?foo=bar', router.generate('with_variable', {test: '123', foo: 'bar'}))
   });
 
+  it("should escape values in the URI", function() {
+    var router = new Sherpa.Router();
+    router.add('/:test').name('with_variable');
+    assertEqual('/%5B%20%5D+=-', router.generate('with_variable', {test: '[ ]+=-'}))
+  });
+
+  it("should escape values in the query string", function() {
+    var router = new Sherpa.Router();
+    router.add('/').name('simple');
+    assertEqual('/?test+and+more=%5B+%5D%2B%3D-', router.generate('simple', {"test and more": '[ ]+=-'}))
+  });
+
 });
