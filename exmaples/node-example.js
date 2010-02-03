@@ -28,7 +28,7 @@ http.createServer(new Sherpa.interfaces.NodeJs([
     response.sendBody("I can't find what you're looking for..");
     response.finish();
   }]
-  
+
 ]).listener()).listen(8000);
 sys.puts("Server running at http://127.0.0.1:8000/");
 
