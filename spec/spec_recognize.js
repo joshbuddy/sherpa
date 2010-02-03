@@ -13,6 +13,12 @@ describe("Sherpa - recognize", function() {
     assertEqual('recognized', router.recognize('/test').destination);
   });
 
+  it("should recognize a partial route", function() {
+    var router = new Sherpa.Router();
+    router.add('/test').to('recognized').matchPartially();
+    assertEqual('recognized', router.recognize('/test/testing').destination);
+  });
+
   it("should recognize a simple route with optionals", function() {
     var router = new Sherpa.Router();
     router.add('/(test)').to('recognized');
