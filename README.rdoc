@@ -79,6 +79,30 @@ Would return
    }
   }
 
+Optional parts of the path are marked with <tt>(</tt> and <tt>)</tt>. For example:
+
+  sherpa.add('/test(/:variable)').to('testing')
+  sherpa.recognize('/test/world')
+  
+Would return 
+
+  {
+   "destination": "testing",
+   "params": {
+    "variable": "world"
+   }
+  }
+  
+And 
+  sherpa.add('/test(/:variable)').to('testing')
+  sherpa.recognize('/test')
+
+Would return only 
+  {
+   "destination": "testing",
+   "params": { }
+  }
+
 You can also specify other parts of the request to match on using <tt>conditions</tt>.
 
   sherpa.add('/test', {conditions: {method: 'GET'}}).to('testing')

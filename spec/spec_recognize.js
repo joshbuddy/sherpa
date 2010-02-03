@@ -7,6 +7,33 @@ describe("Sherpa - recognize", function() {
     assertEqual('recognized', router.recognize('/test').destination);
   });
 
+  it("should recognize a simple route", function() {
+    var router = new Sherpa.Router();
+    router.add('/test').to('recognized');
+    assertEqual('recognized', router.recognize('/test').destination);
+  });
+
+  it("should recognize a simple route with optionals", function() {
+    var router = new Sherpa.Router();
+    router.add('/(test)').to('recognized');
+    assertEqual('recognized', router.recognize('/test').destination);
+    assertEqual('recognized', router.recognize('/').destination);
+  });
+
+  it("should recognize a simple route with nested optionals", function() {
+    var router = new Sherpa.Router();
+    router.add('(/test(/test2(/test3)))(/test4)').to('recognized');
+    assertEqual('recognized', router.recognize('/test').destination);
+    assertEqual('recognized', router.recognize('/test/test2').destination);
+    assertEqual('recognized', router.recognize('/test/test2/test3').destination);
+    assertEqual('recognized', router.recognize('/test/test4').destination);
+    assertEqual('recognized', router.recognize('/test/test2/test4').destination);
+    assertEqual('recognized', router.recognize('/test/test2/test3/test4').destination);
+    assertEqual('recognized', router.recognize('/test4').destination);
+    assertEqual(undefined, router.recognize('/test/test3'));
+    assertEqual(undefined, router.recognize('/test/test3/test4'));
+  });
+
   it("should recognize a route with a variable in it", function() {
     var router = new Sherpa.Router();
     router.add('/:test').to('recognized');

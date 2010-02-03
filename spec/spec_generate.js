@@ -23,6 +23,22 @@ describe("Sherpa - generate", function() {
     assertEqual('/asd', router.generate('with_variable', {test: 'asd'}))
   });
 
+  it("should generate a route with a optionals in it", function() {
+    var router = new Sherpa.Router();
+    router.add('/(:test)').name('with_optional');
+    assertEqual('/', router.generate('with_optional'))
+    assertEqual('/hello', router.generate('with_optional', {test: 'hello'}))
+  });
+
+  it("should generate a route with nested optionals in it", function() {
+    var router = new Sherpa.Router();
+    router.add('/(:test(/:test2))').name('with_optional');
+    assertEqual('/', router.generate('with_optional'))
+    assertEqual('/hello', router.generate('with_optional', {test: 'hello'}))
+    assertEqual('/hello/world', router.generate('with_optional', {test: 'hello', test2: 'world'}))
+    assertEqual('/?test2=hello', router.generate('with_optional', {test2: 'hello'}))
+  });
+
   it("should generate extra params as a query string after", function() {
     var router = new Sherpa.Router();
     router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
