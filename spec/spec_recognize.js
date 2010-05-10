@@ -1,111 +1,119 @@
 require('../lib/sherpa')
+var minitest = require('./minitest.js/minitest');
+minitest.setupListeners();
+var assert = require('assert');
 
-describe("Sherpa - recognize", function() {
-  it("should recognize a simple route", function() {
-    var router = new Sherpa.Router();
-    router.add('/test').to('recognized');
-    assertEqual('recognized', router.recognize('/test').destination);
+minitest.context("Sherpa#recognize()", function () {
+  this.setup(function () {
+    this.router = new Sherpa.Router();
   });
 
-  it("should recognize a simple route", function() {
-    var router = new Sherpa.Router();
-    router.add('/test').to('recognized');
-    assertEqual('recognized', router.recognize('/test').destination);
+  this.assertion("should recognize a simple route", function(test) {
+    this.router.add('/test').to('recognized');
+    assert.equal('recognized', this.router.recognize('/test').destination);
+    test.finished();
   });
 
-  it("should recognize a partial route", function() {
-    var router = new Sherpa.Router();
-    router.add('/test').to('recognized').matchPartially();
-    assertEqual('recognized', router.recognize('/test/testing').destination);
+  this.assertion("should recognize a simple route", function(test) {
+    this.router.add('/test').to('recognized');
+    assert.equal('recognized', this.router.recognize('/test').destination);
+    test.finished();
   });
 
-  it("should recognize a simple route with optionals", function() {
-    var router = new Sherpa.Router();
-    router.add('/(test)').to('recognized');
-    assertEqual('recognized', router.recognize('/test').destination);
-    assertEqual('recognized', router.recognize('/').destination);
+  this.assertion("should recognize a partial route", function(test) {
+    this.router.add('/test').to('recognized').matchPartially();
+    assert.equal('recognized', this.router.recognize('/test/testing').destination);
+    test.finished();
   });
 
-  it("should recognize a simple route with nested optionals", function() {
-    var router = new Sherpa.Router();
-    router.add('(/test(/test2(/test3)))(/test4)').to('recognized');
-    assertEqual('recognized', router.recognize('/test').destination);
-    assertEqual('recognized', router.recognize('/test/test2').destination);
-    assertEqual('recognized', router.recognize('/test/test2/test3').destination);
-    assertEqual('recognized', router.recognize('/test/test4').destination);
-    assertEqual('recognized', router.recognize('/test/test2/test4').destination);
-    assertEqual('recognized', router.recognize('/test/test2/test3/test4').destination);
-    assertEqual('recognized', router.recognize('/test4').destination);
-    assertEqual(undefined, router.recognize('/test/test3'));
-    assertEqual(undefined, router.recognize('/test/test3/test4'));
+  this.assertion("should recognize a simple route with optionals", function(test) {
+    this.router.add('/(test)').to('recognized');
+    assert.equal('recognized', this.router.recognize('/test').destination);
+    assert.equal('recognized', this.router.recognize('/').destination);
+    test.finished();
   });
 
-  it("should recognize a route with a variable in it", function() {
-    var router = new Sherpa.Router();
-    router.add('/:test').to('recognized');
-    var response = router.recognize('/variable');
-    assertEqual('recognized', response.destination);
-    assertEqual({test: 'variable'}, response.params);
+  this.assertion("should recognize a simple route with nested optionals", function(test) {
+    this.router.add('(/test(/test2(/test3)))(/test4)').to('recognized');
+    assert.equal('recognized', this.router.recognize('/test').destination);
+    assert.equal('recognized', this.router.recognize('/test/test2').destination);
+    assert.equal('recognized', this.router.recognize('/test/test2/test3').destination);
+    assert.equal('recognized', this.router.recognize('/test/test4').destination);
+    assert.equal('recognized', this.router.recognize('/test/test2/test4').destination);
+    assert.equal('recognized', this.router.recognize('/test/test2/test3/test4').destination);
+    assert.equal('recognized', this.router.recognize('/test4').destination);
+    assert.equal(undefined, this.router.recognize('/test/test3'));
+    assert.equal(undefined, this.router.recognize('/test/test3/test4'));
+    test.finished();
   });
 
-  it("should recognize a route with a regex variable in it", function() {
-    var router = new Sherpa.Router();
-    router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).to('recognized');
-    assertEqual(undefined, router.recognize('/variable'))
-    assertEqual(undefined, router.recognize('/123qwe'))
-    assertEqual('recognized', router.recognize('/123').destination)
-    assertEqual('recognized', router.recognize('/qwe').destination)
-    assertEqual('recognized', router.recognize('/asd').destination)
+  this.assertion("should recognize a route with a variable in it", function(test) {
+    this.router.add('/:test').to('recognized');
+    var response = this.router.recognize('/variable');
+    assert.equal('recognized', response.destination);
+    assert.deepEqual({test: 'variable'}, response.params);
+    test.finished();
+  });
+
+  this.assertion("should recognize a route with a regex variable in it", function(test) {
+    this.router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).to('recognized');
+    assert.equal(undefined, this.router.recognize('/variable'))
+    assert.equal(undefined, this.router.recognize('/123qwe'))
+    assert.equal('recognized', this.router.recognize('/123').destination)
+    assert.equal('recognized', this.router.recognize('/qwe').destination)
+    assert.equal('recognized', this.router.recognize('/asd').destination)
+    test.finished();
   });
   
-  it("should distinguish between identical routes where one has a matchesWith", function() {
-    var router = new Sherpa.Router();
-    router.add('/:test', {matchesWith: {test: /^(asd|qwe|\d+)$/}}).to('recognized-regex');
-    router.add('/:test').to('recognized-nonregex');
-    assertEqual('recognized-nonregex', router.recognize('/poipio').destination)
-    assertEqual('recognized-nonregex', router.recognize('/123asd').destination)
-    assertEqual('recognized-regex', router.recognize('/123').destination)
-    assertEqual('recognized-regex', router.recognize('/qwe').destination)
-    assertEqual('recognized-regex', router.recognize('/asd').destination)
+  this.assertion("should distinguish between identical routes where one has a matchesWith", function(test) {
+    this.router.add('/:test', {matchesWith: {test: /^(asd|qwe|\d+)$/}}).to('recognized-regex');
+    this.router.add('/:test').to('recognized-nonregex');
+    assert.equal('recognized-nonregex', this.router.recognize('/poipio').destination)
+    assert.equal('recognized-nonregex', this.router.recognize('/123asd').destination)
+    assert.equal('recognized-regex', this.router.recognize('/123').destination)
+    assert.equal('recognized-regex', this.router.recognize('/qwe').destination)
+    assert.equal('recognized-regex', this.router.recognize('/asd').destination)
+    test.finished();
   });
   
-  it("should recognize a route based on a request method", function() {
-    var router = new Sherpa.Router();
-    router.add('/test').to('any');
-    router.add('/test', {conditions:{method: 'GET'}}).to('get');
-    router.add('/test', {conditions:{method: 'POST'}}).to('post');
-    assertEqual('get', router.recognize('/test', {method: 'GET'}).destination);
-    assertEqual('post', router.recognize('/test', {method: 'POST'}).destination);
-    assertEqual('any', router.recognize('/test', {method: 'PUT'}).destination);
+  this.assertion("should recognize a route based on a request method", function(test) {
+    this.router.add('/test').to('any');
+    this.router.add('/test', {conditions:{method: 'GET'}}).to('get');
+    this.router.add('/test', {conditions:{method: 'POST'}}).to('post');
+    assert.equal('get', this.router.recognize('/test', {method: 'GET'}).destination);
+    assert.equal('post', this.router.recognize('/test', {method: 'POST'}).destination);
+    assert.equal('any', this.router.recognize('/test', {method: 'PUT'}).destination);
+    test.finished();
   });
 
-  it("should recognize a route based on multiple request keys", function() {
-    var router = new Sherpa.Router({requestKeys: ['method', 'scheme']});
-    router.add('/test', {conditions:{method: 'GET', scheme: 'https'}}).to('https-get');
-    router.add('/test', {conditions:{method: 'POST', scheme: 'http'}}).to('http-post');
-    router.add('/test', {conditions:{scheme: 'http'}}).to('http-any');
-    router.add('/test', {conditions:{scheme: 'https'}}).to('https-any');
-    router.add('/test', {conditions:{method: 'POST', scheme: 'https'}}).to('https-post');
-    router.add('/test', {conditions:{method: 'GET', scheme: 'http'}}).to('http-get');
+  this.assertion("should recognize a route based on multiple request keys", function(test) {
+    this.router = new Sherpa.Router({requestKeys: ['method', 'scheme']});
+    this.router.add('/test', {conditions:{method: 'GET', scheme: 'https'}}).to('https-get');
+    this.router.add('/test', {conditions:{method: 'POST', scheme: 'http'}}).to('http-post');
+    this.router.add('/test', {conditions:{scheme: 'http'}}).to('http-any');
+    this.router.add('/test', {conditions:{scheme: 'https'}}).to('https-any');
+    this.router.add('/test', {conditions:{method: 'POST', scheme: 'https'}}).to('https-post');
+    this.router.add('/test', {conditions:{method: 'GET', scheme: 'http'}}).to('http-get');
     
-    assertEqual('https-get', router.recognize('/test', {method: 'GET', scheme: 'https'}).destination);
-    assertEqual('https-get', router.recognize('/test', {method: 'GET', scheme: 'https'}).destination);
-    assertEqual('https-any', router.recognize('/test', {method: 'PUT', scheme: 'https'}).destination);
-    assertEqual('http-post', router.recognize('/test', {method: 'POST', scheme: 'http'}).destination);
-    assertEqual('http-post', router.recognize('/test', {method: 'POST', scheme: 'http'}).destination);
-    assertEqual('http-any', router.recognize('/test', {method: 'PUT', scheme: 'http'}).destination);
+    assert.equal('https-get', this.router.recognize('/test', {method: 'GET', scheme: 'https'}).destination);
+    assert.equal('https-get', this.router.recognize('/test', {method: 'GET', scheme: 'https'}).destination);
+    assert.equal('https-any', this.router.recognize('/test', {method: 'PUT', scheme: 'https'}).destination);
+    assert.equal('http-post', this.router.recognize('/test', {method: 'POST', scheme: 'http'}).destination);
+    assert.equal('http-post', this.router.recognize('/test', {method: 'POST', scheme: 'http'}).destination);
+    assert.equal('http-any', this.router.recognize('/test', {method: 'PUT', scheme: 'http'}).destination);
+    test.finished();
     
   });
 
-  it("should recognize a route based on a request method regex", function() {
-    var router = new Sherpa.Router();
-    router.add('/test').to('any');
-    router.add('/test', {conditions:{method: 'DELETE'}}).to('delete');
-    router.add('/test', {conditions:{method: /GET|POST/}}).to('get-post');
-    assertEqual('get-post', router.recognize('/test', {method: 'GET'}).destination);
-    assertEqual('get-post', router.recognize('/test', {method: 'POST'}).destination);
-    assertEqual('delete', router.recognize('/test', {method: 'DELETE'}).destination);
-    assertEqual('any', router.recognize('/test', {method: 'PUT'}).destination);
+  this.assertion("should recognize a route based on a request method regex", function(test) {
+    this.router.add('/test').to('any');
+    this.router.add('/test', {conditions:{method: 'DELETE'}}).to('delete');
+    this.router.add('/test', {conditions:{method: /GET|POST/}}).to('get-post');
+    assert.equal('get-post', this.router.recognize('/test', {method: 'GET'}).destination);
+    assert.equal('get-post', this.router.recognize('/test', {method: 'POST'}).destination);
+    assert.equal('delete', this.router.recognize('/test', {method: 'DELETE'}).destination);
+    assert.equal('any', this.router.recognize('/test', {method: 'PUT'}).destination);
+    test.finished();
   });
 
   

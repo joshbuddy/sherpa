@@ -1,60 +1,72 @@
 require('../lib/sherpa')
+var minitest = require('./minitest.js/minitest');
+minitest.setupListeners();
+var assert = require('assert');
 
-describe("Sherpa - generate", function() {
-  it("should generate a simple route", function() {
-    var router = new Sherpa.Router();
-    router.add('/test').name('simple');
-    assertEqual('/test', router.generate('simple'));
+minitest.context("Sherpa#generate()", function () {
+  this.setup(function () {
+    this.router = new Sherpa.Router();
   });
 
-  it("should generate a route with a variable in it", function() {
-    var router = new Sherpa.Router();
-    router.add('/:test').name('with_variable');
-    assertEqual('/var', router.generate('with_variable', {test: 'var'}));
+  this.assertion("should generate a simple route", function (test) {
+    this.router.add('/test').name('simple');
+    assert.equal('/test', this.router.generate('simple'));
+    test.finished();
   });
 
-  it("should generate a route with a regex variable in it", function() {
-    var router = new Sherpa.Router();
-    router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
-    assertEqual(undefined, router.generate('with_variable', {test: 'variable'}))
-    assertEqual(undefined, router.generate('with_variable', {test: '123qwe'}))
-    assertEqual('/123', router.generate('with_variable', {test: '123'}))
-    assertEqual('/qwe', router.generate('with_variable', {test: 'qwe'}))
-    assertEqual('/asd', router.generate('with_variable', {test: 'asd'}))
+  this.assertion("should generate a route with a variable in it", function (test) {
+    this.router.add('/:test').name('with_variable');
+    assert.equal('/var', this.router.generate('with_variable', {test: 'var'}));
+    test.finished();
   });
 
-  it("should generate a route with a optionals in it", function() {
-    var router = new Sherpa.Router();
-    router.add('/(:test)').name('with_optional');
-    assertEqual('/', router.generate('with_optional'))
-    assertEqual('/hello', router.generate('with_optional', {test: 'hello'}))
+  this.assertion("should generate a route with a regex variable in it", function(test) {
+    this.router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
+    assert.equal(undefined, this.router.generate('with_variable', {test: 'variable'}))
+    assert.equal(undefined, this.router.generate('with_variable', {test: '123qwe'}))
+    assert.equal('/123', this.router.generate('with_variable', {test: '123'}))
+    assert.equal('/qwe', this.router.generate('with_variable', {test: 'qwe'}))
+    assert.equal('/asd', this.router.generate('with_variable', {test: 'asd'}))
+    test.finished();
   });
 
-  it("should generate a route with nested optionals in it", function() {
-    var router = new Sherpa.Router();
-    router.add('/(:test(/:test2))').name('with_optional');
-    assertEqual('/', router.generate('with_optional'))
-    assertEqual('/hello', router.generate('with_optional', {test: 'hello'}))
-    assertEqual('/hello/world', router.generate('with_optional', {test: 'hello', test2: 'world'}))
-    assertEqual('/?test2=hello', router.generate('with_optional', {test2: 'hello'}))
+  this.assertion("should generate a route with a optionals in it", function(test) {
+    this.router.add('/(:test)').name('with_optional');
+    assert.equal('/', this.router.generate('with_optional'))
+    assert.equal('/hello', this.router.generate('with_optional', {test: 'hello'}))
+    test.finished();
+  });
+  
+  this.assertion("should generate a route with nested optionals in it", function(test) {
+    this.router.add('/(:test(/:test2))').name('with_optional');
+    assert.equal('/', this.router.generate('with_optional'))
+    assert.equal('/hello', this.router.generate('with_optional', {test: 'hello'}))
+    assert.equal('/hello/world', this.router.generate('with_optional', {test: 'hello', test2: 'world'}))
+    assert.equal('/?test2=hello', this.router.generate('with_optional', {test2: 'hello'}))
+    test.finished();
   });
 
-  it("should generate extra params as a query string after", function() {
-    var router = new Sherpa.Router();
-    router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
-    assertEqual('/123?foo=bar', router.generate('with_variable', {test: '123', foo: 'bar'}))
+  this.assertion("should generate extra params as a query string after", function(test) {
+    this.router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
+    assert.equal('/123?foo=bar', this.router.generate('with_variable', {test: '123', foo: 'bar'}));
+    test.finished();
   });
 
-  it("should escape values in the URI", function() {
-    var router = new Sherpa.Router();
-    router.add('/:test').name('with_variable');
-    assertEqual('/%5B%20%5D+=-', router.generate('with_variable', {test: '[ ]+=-'}))
+  this.assertion("should generate extra params as a query string after", function(test) {
+    this.router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
+    assert.equal('/123?foo=bar', this.router.generate('with_variable', {test: '123', foo: 'bar'}));
+    test.finished();
   });
 
-  it("should escape values in the query string", function() {
-    var router = new Sherpa.Router();
-    router.add('/').name('simple');
-    assertEqual('/?test+and+more=%5B+%5D%2B%3D-', router.generate('simple', {"test and more": '[ ]+=-'}))
+  this.assertion("should escape values in the URI", function(test) {
+    this.router.add('/:test').name('with_variable');
+    assert.equal('/%5B%20%5D+=-', this.router.generate('with_variable', {test: '[ ]+=-'}))
+    test.finished();
   });
 
+  this.assertion("should escape values in the query string", function(test) {
+    this.router.add('/').name('simple');
+    assert.equal('/?test+and+more=%5B+%5D%2B%3D-', this.router.generate('simple', {"test and more": '[ ]+=-'}))
+    test.finished();
+  });
 });
