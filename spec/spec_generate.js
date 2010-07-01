@@ -45,28 +45,28 @@ minitest.context("Sherpa#generate()", function () {
     assert.equal('/?test2=hello', this.router.generate('with_optional', {test2: 'hello'}))
     test.finished();
   });
-  //
-  //this.assertion("should generate extra params as a query string after", function(test) {
-  //  this.router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
-  //  assert.equal('/123?foo=bar', this.router.generate('with_variable', {test: '123', foo: 'bar'}));
-  //  test.finished();
-  //});
-  //
-  //this.assertion("should generate extra params as a query string after", function(test) {
-  //  this.router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable');
-  //  assert.equal('/123?foo=bar', this.router.generate('with_variable', {test: '123', foo: 'bar'}));
-  //  test.finished();
-  //});
-  //
-  //this.assertion("should escape values in the URI", function(test) {
-  //  this.router.add('/:test').name('with_variable');
-  //  assert.equal('/%5B%20%5D+=-', this.router.generate('with_variable', {test: '[ ]+=-'}))
-  //  test.finished();
-  //});
-  //
-  //this.assertion("should escape values in the query string", function(test) {
-  //  this.router.add('/').name('simple');
-  //  assert.equal('/?test+and+more=%5B+%5D%2B%3D-', this.router.generate('simple', {"test and more": '[ ]+=-'}))
-  //  test.finished();
-  //});
+  
+  this.assertion("should generate extra params as a query string after", function(test) {
+    this.router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable').compile();
+    assert.equal('/123?foo=bar', this.router.generate('with_variable', {test: '123', foo: 'bar'}));
+    test.finished();
+  });
+  
+  this.assertion("should generate extra params as a query string after", function(test) {
+    this.router.add('/:test', {matchesWith: {test: /asd|qwe|\d+/}}).name('with_variable').compile();
+    assert.equal('/123?foo=bar', this.router.generate('with_variable', {test: '123', foo: 'bar'}));
+    test.finished();
+  });
+  
+  this.assertion("should escape values in the URI", function(test) {
+    this.router.add('/:test').name('with_variable').compile();
+    assert.equal('/%5B%20%5D+=-', this.router.generate('with_variable', {test: '[ ]+=-'}))
+    test.finished();
+  });
+  
+  this.assertion("should escape values in the query string", function(test) {
+    this.router.add('/').name('simple').compile();
+    assert.equal('/?test+and+more=%5B+%5D%2B%3D-', this.router.generate('simple', {"test and more": '[ ]+=-'}))
+    test.finished();
+  });
 });
