@@ -105,6 +105,13 @@ minitest.context("Sherpa#recognize()", function () {
     test.finished();
   });
   
+  this.assertion("should recognize a route with a regex variable in it using options", function(test) {
+    this.router.add("/withmatch/:something", { matchesWith: { something: /\d+/ } }).to("with_match");
+    var result = this.router.recognize("/withmatch/1234");
+    assert.equal('1234', result.params.something);
+    test.finished();
+  });
+  
   this.assertion("should distinguish between identical routes where one has a matchesWith", function(test) {
     this.router.add('/:test').matchesWith({test: /^(asd|qwe|\d+)$/}).to('recognized-regex');
     this.router.add('/:test').to('recognized-nonregex');
