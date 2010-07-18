@@ -8,7 +8,7 @@ Simple HTTP routing in Javascript.
 
 Here is an example of simple recognition run from Node.js.
 
-  require('./lib/sherpa')
+  var Sherpa = require('./lib/sherpa')
   var sherpa = new Sherpa.Router();
   sherpa.add('/test').to('testRoute')
   sherpa.recognize('/test')
@@ -64,7 +64,7 @@ And...
 Would return
 
   undefined
-  
+
 But if you change the extension to one supported by the <tt>matchesWith</tt> specified,
 
   sherpa.recognize('/test2/testing.html')
@@ -83,8 +83,8 @@ Optional parts of the path are marked with <tt>(</tt> and <tt>)</tt>. For exampl
 
   sherpa.add('/test(/:variable)').to('testing')
   sherpa.recognize('/test/world')
-  
-Would return 
+
+Would return
 
   {
    "destination": "testing",
@@ -92,12 +92,12 @@ Would return
     "variable": "world"
    }
   }
-  
-And 
+
+And
   sherpa.add('/test(/:variable)').to('testing')
   sherpa.recognize('/test')
 
-Would return only 
+Would return only
   {
    "destination": "testing",
    "params": { }
@@ -107,18 +107,18 @@ You can also specify other parts of the request to match on using <tt>conditions
 
   sherpa.add('/test', {conditions: {method: 'GET'}}).to('testing')
   sherpa.recognize('/test', {method: 'GET'})
-  
+
   {
     "destination": "testing",
     "params": {}
   }
 
 But
-  
+
   sherpa.recognize('/test', {method: 'POST'})
-  
+
 Will just return
-  
+
   undefined
 
 You can also use regex here, such as:
@@ -131,7 +131,7 @@ Generating is easy too.
 
   sherpa.add('/test2/:test2.:format').name('test')
   sherpa.generate('test', {test2: 'variable', format: 'html'})
-  
+
 Would return
 
   "/test2/variable.html"
@@ -144,12 +144,35 @@ Would return
 
   "/test2/variable.html?page=1"
 
+== Connect
+
+Sherpa has an interface to allow it to work with the Connect framework.
+
+  var Sherpa = require('sherpa/connect'),
+      router = new Sherpa.Connect();
+
+In addition to the normal methods avaliable with the router, there are also a number of helpers defined.
+
+  GET, POST, PUT, DELETE, HEAD, OPTIONS, ANY
+
+  router.GET(     "/some url", function(req,resp,next){ doSomething(); });
+  router.POST(    "/some url", function(req,resp,next){ doSomething(); });
+  router.GET(     "/some url", function(req,resp,next){ doSomething(); });
+  router.DELETE(  "/some url", function(req,resp,next){ doSomething(); });
+  router.HEAD(    "/some url", function(req,resp,next){ doSomething(); });
+  router.ANY(     "/", function(req, resp, next){ pressTheAnyKey();    });
+
+To connect the router into the Connect middleware system:
+
+  var server = Connect.createServer();
+  server.use("/mount_point", router.connect())
+
 == Node.js
 
 To use this within Node.js, simply use the Node.js interface. Here is a simple example:
 
   require('../lib/sherpa')
-  
+
   var sys = require("sys"), http = require("http");
 
   http.createServer(new Sherpa.interfaces.NodeJs([
