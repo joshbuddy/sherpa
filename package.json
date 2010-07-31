@@ -2,7 +2,7 @@
   "name": "sherpa",
   "description": "Simple URI routing in Javascript",
   "author": "Joshua Hull <joshbuddy@gmail.com>",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "directories": {
     "lib" : "./lib/sherpa"
   },
