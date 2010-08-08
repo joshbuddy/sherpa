@@ -10,7 +10,7 @@ minitest.context("Sherpa#recognize()", function () {
 
   this.assertion("should recognize a simple route", function(test) {
     this.router.add('/').to('recognized');
-    var resposne = this.router.recognize('/');
+    assert.equal('recognized', this.router.recognize('/').destination);
     test.finished();
   });
   
