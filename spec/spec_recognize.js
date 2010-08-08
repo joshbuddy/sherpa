@@ -13,14 +13,14 @@ minitest.context("Sherpa#recognize()", function () {
     assert.equal('recognized', this.router.recognize('/').destination);
     test.finished();
   });
-  
+
   this.assertion("should recognize a simple route", function(test) {
     this.router.add('/test').to('recognized');
     var resposne = this.router.recognize('/test');
     assert.equal('recognized', this.router.recognize('/test').destination);
     test.finished();
   });
-  
+
   this.assertion("should recognize a route with a variable", function(test) {
     this.router.add('/:test').to('recognized');
     var response = this.router.recognize('/variable');
@@ -28,7 +28,7 @@ minitest.context("Sherpa#recognize()", function () {
     assert.deepEqual({test: 'variable'}, response.params);
     test.finished();
   });
-  
+
   this.assertion("should recognize a route with a variable in the middle of the path", function(test) {
     this.router.add('/test-:test-test').to('recognized');
     var response = this.router.recognize('/test-variable-test');
@@ -36,7 +36,7 @@ minitest.context("Sherpa#recognize()", function () {
     assert.deepEqual({test: 'variable'}, response.params);
     test.finished();
   });
-  
+
   this.assertion("should recognize a route with a variable at the end of the path", function(test) {
     this.router.add('/test/:test').to('recognized');
     var response = this.router.recognize('/test/variable');
@@ -44,14 +44,14 @@ minitest.context("Sherpa#recognize()", function () {
     assert.deepEqual({test: 'variable'}, response.params);
     test.finished();
   });
-  
+
   this.assertion("should recognize a simple route with optionals", function(test) {
     this.router.add('/(test)').to('recognized');
     assert.equal('recognized', this.router.recognize('/test').destination);
     assert.equal('recognized', this.router.recognize('/').destination);
     test.finished();
   });
-  
+
   this.assertion("should recognize a route based on a request method", function(test) {
     this.router.add('/test').to('any');
     this.router.add('/test').condition({method: 'GET'}).to('get');
@@ -61,7 +61,7 @@ minitest.context("Sherpa#recognize()", function () {
     assert.equal('any', this.router.recognize('/test', {method: 'PUT'}).destination);
     test.finished();
   });
-  
+
   this.assertion("should recognize a simple route with nested optionals", function(test) {
     this.router.add('/test(/test2(/test3))').to('recognized');
     assert.equal('recognized', this.router.recognize('/test').destination);
@@ -70,7 +70,7 @@ minitest.context("Sherpa#recognize()", function () {
     assert.equal(undefined, this.router.recognize('/test/test3'));
     test.finished();
   });
-  
+
   this.assertion("should recognize a route based on multiple request keys", function(test) {
     this.router = new Sherpa.Router({requestKeys: ['method', 'scheme']});
     this.router.add('/test').condition({method: 'GET', scheme: 'https'}).to('https-get');
@@ -79,7 +79,7 @@ minitest.context("Sherpa#recognize()", function () {
     this.router.add('/test').condition({scheme: 'https'}).to('https-any');
     this.router.add('/test').condition({method: 'POST', scheme: 'https'}).to('https-post');
     this.router.add('/test').condition({method: 'GET', scheme: 'http'}).to('http-get');
-    
+
     assert.equal('http-post', this.router.recognize('/test', {method: 'POST', scheme: 'http'}).destination);
     assert.equal('http-post', this.router.recognize('/test', {method: 'POST', scheme: 'http'}).destination);
     assert.equal('http-any',  this.router.recognize('/test', {method: 'PUT', scheme: 'http'}).destination);
@@ -88,7 +88,7 @@ minitest.context("Sherpa#recognize()", function () {
     assert.equal('https-any', this.router.recognize('/test', {method: 'PUT', scheme: 'https'}).destination);
     test.finished();
   });
-  
+
   this.assertion("should recognize a partial route", function(test) {
     this.router.add('/test').matchPartially().to('recognized')
     assert.equal('recognized', this.router.recognize('/test/testing').destination);
@@ -104,14 +104,14 @@ minitest.context("Sherpa#recognize()", function () {
     assert.equal('recognized', this.router.recognize('/asd').destination)
     test.finished();
   });
-  
+
   this.assertion("should recognize a route with a regex variable in it using options", function(test) {
     this.router.add("/withmatch/:something", { matchesWith: { something: /\d+/ } }).to("with_match");
     var result = this.router.recognize("/withmatch/1234");
     assert.equal('1234', result.params.something);
     test.finished();
   });
-  
+
   this.assertion("should distinguish between identical routes where one has a matchesWith", function(test) {
     this.router.add('/:test').matchesWith({test: /^(asd|qwe|\d+)$/}).to('recognized-regex');
     this.router.add('/:test').to('recognized-nonregex');
@@ -122,7 +122,7 @@ minitest.context("Sherpa#recognize()", function () {
     assert.equal('recognized-nonregex', this.router.recognize('/123asd').destination)
     test.finished();
   });
-  
+
   this.assertion("should recognize a route based on a request method", function(test) {
     this.router.add('/test').to('any');
     this.router.add('/test').condition({method: 'GET'}).to('get');
@@ -132,8 +132,8 @@ minitest.context("Sherpa#recognize()", function () {
     assert.equal('any', this.router.recognize('/test', {method: 'PUT'}).destination);
     test.finished();
   });
-  
-  
+
+
   this.assertion("should recognize a route based on a request method regex", function(test) {
     this.router.add('/test').to('any');
     this.router.add('/test').condition({method: 'DELETE'}).to('delete');
@@ -145,5 +145,10 @@ minitest.context("Sherpa#recognize()", function () {
     test.finished();
   });
 
-  
+  this.assertion("should let me mount a router", function(test) {
+    var r1 = new Sherpa.Router();
+    this.router.add("/mounted").to(r1);
+    r1.add("/foo").to("endpoint");
+    assert.equal("endpoint", this.router.recognize("/mounted/foo").destination);
+  });
 });
