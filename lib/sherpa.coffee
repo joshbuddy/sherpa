@@ -19,15 +19,8 @@ root.Sherpa = class Sherpa
       subparts.push part.slice(0, match[0].length)
       part = part.slice(match[0].length, part.length)
     subparts
-  url: (name, params) ->
-    @routes[name].url(params)
-  add: (rawPath, opts) ->
-    paths = [""]
-    chars = rawPath.split('')
-    startIndex = 0
-    endIndex = 1
-    matchesWith = opts?.matchesWith || {}
-    routeName = opts?.name
+  generatePaths: (path) ->
+    [paths, chars, startIndex, endIndex] = [[''], path.split(''), 0, 1]
     for charIndex in [0...chars.length]
       c = chars[charIndex]
       switch c
@@ -41,8 +34,57 @@ root.Sherpa = class Sherpa
           startIndex -= endIndex - startIndex
         else
           paths[pathIndex] += c for pathIndex in [startIndex...endIndex]
-
-    pathSet = for path in paths
+    paths
+  url: (name, params) ->
+    @routes[name].url(params)
+  addComplexPart: (subparts, compiledPath, matchesWith, variableNames) ->
+    [capturingIndicies, splittingIndicies, captures, spans] = [[], [], 0, false]
+    regexSubparts = for part in subparts
+      switch part[0]
+        when '\\' then escape(part[1].chr)
+        when ':', '*'
+          spans = true if part[0] == '*'
+          captures += 1
+          name = part.slice(1, part.length)
+          variableNames.push(name)
+          if part[0] == '*'
+            splittingIndicies.push(captures)
+            compiledPath.push "params['#{name}'].join('/')"
+          else
+            capturingIndicies.push(captures)
+            compiledPath.push "params['#{name}']"
+          if spans
+            if matchesWith[name]? then "((?:#{matchesWith[name].source}\\/?)+)" else '(.*?)'
+          else
+            "(#{(matchesWith[name]?.source || '[^/]*?')})"
+        else
+          compiledPath.push "'#{part}'"
+          escape(part)
+    regexp = new RegExp("#{regexSubparts.join('')}$")
+    if spans
+      new SpanningRegexMatcher(regexp, capturingIndicies, splittingIndicies)
+    else
+      new RegexMatcher(regexp, capturingIndicies, splittingIndicies)
+  addSimplePart: (subparts, compiledPath, matchesWith, variableNames) ->
+    part = subparts[0]
+    switch part[0]
+      when ':'
+        variableName = part.slice(1, part.length)
+        compiledPath.push "params['#{variableName}']"
+        variableNames.push(variableName)
+        if matchesWith[variableName]? then new SpanningRegexMatcher(matchesWith[variableName], [0], []) else new Variable() 
+      when '*'
+        compiledPath.push "params['#{variableName}'].join('/')"
+        variableName = part.slice(1, part.length)
+        variableNames.push(variableName)
+        new Glob()
+      else
+        compiledPath.push "'#{part}'"
+        new Lookup(part)
+  add: (rawPath, opts) ->
+    matchesWith = opts?.matchesWith || {}
+    routeName = opts?.name
+    pathSet = for path in @generatePaths(rawPath)
       node = @root
       variableNames = []
       parts = path.split('/')
@@ -54,55 +96,8 @@ root.Sherpa = class Sherpa
         else
           compiledPath.push "'/'"
           subparts = @findSubparts(part)
-          nextNode = if subparts.length == 1
-            part = subparts[0]
-            switch part[0]
-              when ':'
-                variableName = part.slice(1, part.length)
-                compiledPath.push "params['#{variableName}']"
-                variableNames.push(variableName)
-                if matchesWith[variableName]? then new SpanningRegexMatcher(matchesWith[variableName], [0], []) else new Variable() 
-              when '*'
-                compiledPath.push "params['#{variableName}'].join('/')"
-                variableName = part.slice(1, part.length)
-                variableNames.push(variableName)
-                new Glob()
-              else
-                compiledPath.push "'#{part}'"
-                new Lookup(part)
-          else
-            capturingIndicies = []
-            splittingIndicies = []
-            captures = 0
-            spans = false
-            regexSubparts = for part in subparts
-              switch part[0]
-                when '\\' then escape(part[1].chr)
-                when ':', '*'
-                  if part[0] == '*'
-                    spans = true
-                  captures += 1
-                  name = part.slice(1, part.length)
-                  variableNames.push(name)
-                  if part[0] == '*'
-                    splittingIndicies.push(captures)
-                    compiledPath.push "params['#{name}'].join('/')"
-                  else
-                    capturingIndicies.push(captures)
-                    compiledPath.push "params['#{name}']"
-                  if spans
-                    if matchesWith[name]? then "((?:#{matchesWith[name].source}\\/?)+)" else '(.*?)'
-                  else
-                    "(#{(matchesWith[name]?.source || '[^/]*?')})"
-                else
-                  compiledPath.push "'#{part}'"
-                  escape(part)
-            regexp = new RegExp("#{regexSubparts.join('')}$")
-            if spans
-              new SpanningRegexMatcher(regexp, capturingIndicies, splittingIndicies)
-            else
-              new RegexMatcher(regexp, capturingIndicies, splittingIndicies)
-          node = node.add(nextNode)
+          nextNodeFn = if subparts.length == 1 then @addSimplePart else @addComplexPart
+          node = node.add(nextNodeFn(subparts, compiledPath, matchesWith, variableNames))
       if opts?.conditions?
         node = node.add(new RequestMatcher(opts.conditions))
       path = new Path(node, variableNames)
